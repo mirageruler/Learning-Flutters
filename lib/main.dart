@@ -2,18 +2,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_complete_guide/widgets/chart.dart';
 import 'package:flutter_complete_guide/widgets/transaction_list.dart';
 import './widgets/new_transaction.dart';
 import 'package:intl/intl.dart';
 import './models/transaction.dart';
-//import './question.dart';
-//import './answer.dart';
-
-// void main() {
-//   runApp(MyApp());
-// }
 
 void main() {
   // WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +21,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Persona Expenses',
+      title: 'Personal Expenses',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch:
+            Colors.green, // Define many other shades of the selected color
         accentColor: Colors.amber,
         errorColor: Colors.red,
         fontFamily: 'Quicksand',
@@ -58,27 +52,13 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  //String titleInput;
-  //String amoutInput;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  final List<Transaction> _userTransactions = [
-    // Transaction(
-    //   id: 't1',
-    //   title: 'New Shoes',
-    //   amount: 69.99,
-    //   date: DateTime.now(),
-    // ),
-    // Transaction(
-    //   id: 't2',
-    //   title: 'Weekly Groceries',
-    //   amount: 16.53,
-    //   date: DateTime.now(),
-    // ),
-  ];
+  /// I only mark the variable here is _userTransactions which is the pointer/address to the object its hold as final (because Dart only save the pointer/address to the object in memory), not the object as final.
+  final List<Transaction> _userTransactions = [];
   bool _showChart = false;
 
   @override
@@ -98,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// A getter to get only transactions from the last 7 weekdays count from the current date.
   List<Transaction> get _recentTransactions {
     return _userTransactions.where((tx) {
       return tx.date.isAfter(
@@ -118,13 +99,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     setState(() {
       _userTransactions.add(newTx);
+
+      /// Because Dart only save the pointer/address which point to the object, so I can manipulate the object that final address hold inside. I'm not assigning the pointer/address with new object/value here because I marked pointer/address as final.
     });
   }
 
   void _startAddNewTransaction(BuildContext ctx) {
+    /// showModalBottomSheet is a function provided automatically by Flutter, so I just leverage it.
     showModalBottomSheet(
       context: ctx,
       builder: (_) {
+        /// Wrapping the NewTransaction Widget with a GestureDectector Widget (with some configuarations)
+        /// so I can register a no-op function for the onTap argument
+        /// which will prevent closing the modalbottomsheet when users click on the sheet itself.
         return GestureDetector(
           onTap: () {},
           child: NewTransaction(_addNewTransaction),
@@ -142,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   List<Widget> _buildLandscapeContent(
     MediaQueryData mediaQuery,
-    AppBar appBar,
+    PreferredSizeWidget appBar,
     Widget txListWidget,
   ) {
     return [
@@ -177,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   List<Widget> _buildPortraitContent(
     MediaQueryData mediaQuery,
-    AppBar appBar,
+    PreferredSizeWidget appBar,
     Widget txListWidget,
   ) {
     return [
@@ -231,6 +218,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     final mediaQuery = MediaQuery.of(context);
     final bool isLandscape = mediaQuery.orientation == Orientation.landscape;
     final PreferredSizeWidget appBar = _buildAppbar();
+
+    /// Must have this container with a clearly defined height to wrap the TransactionList here, otherwise the Column in the end will be the direct parent of the TransactionList(ListView widget) -> It's a bad combination between a parent widget can get as much height as its children has/need and a child widget which has an infinity height.
     final txListWidget = Container(
         height: (mediaQuery.size.height -
                 appBar.preferredSize.height -
@@ -240,7 +229,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     final pageBody = SafeArea(
         child: SingleChildScrollView(
       child: Column(
-        //mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           if (isLandscape)
@@ -260,8 +248,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     ));
     return Platform.isIOS
         ? CupertinoPageScaffold(
-            child: pageBody,
+            /// Similar to the appBar of the Material Scaffold but for the Cupertino Scaffold
             navigationBar: appBar,
+            child: pageBody,
           )
         : Scaffold(
             appBar: appBar,

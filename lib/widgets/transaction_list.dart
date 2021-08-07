@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/widgets/transaction_item.dart';
+import '../widgets/transaction_item.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
 
@@ -30,6 +30,7 @@ class TransactionList extends StatelessWidget {
               ],
             );
           })
+        // Because I only use the ListView widget here, so it will initially render (Not lazy render) all its children although some of them are not visible (off-screen) which will cause a bad performance (Consume a lot of memory) when it comes to a large list.
         : ListView(children: [
             ...transactions
                 .map(
